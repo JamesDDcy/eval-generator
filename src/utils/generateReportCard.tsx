@@ -1,6 +1,22 @@
 import type { EvaluationFormData, AceDomainData, AceRating, GainsRating } from "@/types/evaluation"
 import { getGainsBadgeStyle } from "@/utils/gainsBadgeColor"
+import { GAINS_OPTIONS } from "@/utils/gainsOptions"
 import { ACE_DOMAIN_GUIDES } from "@/utils/aceSubItems"
+import { calculateOverallRating } from "@/utils/calculateOverallRating"
+
+const OVERALL_ORANGE = "#e8763c"
+const OVERALL_ORANGE_LIGHT = "#fdd9b8"
+
+const PERCENTILE_BY_RATING: Record<GainsRating, string> = {
+  G: "upper 10%",
+  A: "upper 20%",
+  I: "middle 40%",
+  N: "bottom 20%",
+  S: "lower 10%",
+}
+
+const PERFORMANCE_DESCRIPTION =
+  "This assessment shows the evaluatee's performance rating. Using the GAINS framework, it considers expectations based on the evaluatee's performance relative to their role and growth potential, rather than solely focusing on their absolute strengths and weaknesses."
 
 const formatDate = (date: Date): string =>
   date.toLocaleDateString("en-PH", { year: "numeric", month: "long", day: "numeric" })
@@ -14,7 +30,7 @@ const formatFileName = (evaluateeName: string, date: Date): string => {
 const DOMAIN_LABELS: Record<AceRating, { name: string; color: string }> = {
   aptitude: { name: "Aptitude", color: "#6b4bb1" },
   character: { name: "Character", color: "#005451" },
-  effectiveness: { name: "Effectiveness", color: "#6f3f00" },
+  effectiveness: { name: "Effectiveness", color: "#e8763c" },
 }
 
 export const generatePdfBlob = async (
@@ -110,6 +126,98 @@ export const generatePdfBlob = async (
       marginBottom: 4,
     },
     sectionText: { fontSize: 9, lineHeight: 1.5 },
+    assessmentBlock: {
+      marginBottom: 14,
+      padding: 12,
+      borderRadius: 4,
+      backgroundColor: "#ffffff",
+      borderTop: "1px solid #bec9c7",
+      borderBottom: "1px solid #bec9c7",
+    },
+    assessmentTitle: {
+      fontSize: 12,
+      fontFamily: "Helvetica-Bold",
+      color: "#005451",
+      marginBottom: 4,
+    },
+    assessmentDescription: {
+      fontSize: 8,
+      lineHeight: 1.45,
+      color: "#3e4948",
+      marginBottom: 10,
+    },
+    gainsScaleRow: {
+      flexDirection: "row",
+      gap: 4,
+      marginBottom: 12,
+    },
+    gainsScaleItem: {
+      flex: 1,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
+      paddingVertical: 4,
+      paddingHorizontal: 5,
+      borderRadius: 12,
+    },
+    gainsScaleLetter: {
+      width: 14,
+      height: 14,
+      borderRadius: 7,
+      backgroundColor: "#ffffff",
+      fontSize: 8,
+      fontFamily: "Helvetica-Bold",
+      textAlign: "center",
+      paddingTop: 2,
+    },
+    gainsScaleText: { flex: 1 },
+    gainsScaleName: { fontSize: 6.5, fontFamily: "Helvetica-Bold", color: "#ffffff" },
+    gainsScalePercentile: { fontSize: 6, color: "#ffffff", fontStyle: "italic" },
+    overallLabel: {
+      fontSize: 9,
+      fontFamily: "Helvetica-Bold",
+      color: "#005451",
+      marginBottom: 4,
+    },
+    overallBar: {
+      flexDirection: "row",
+      borderRadius: 4,
+      overflow: "hidden",
+      borderWidth: 1.5,
+      borderColor: OVERALL_ORANGE,
+    },
+    overallLetterBox: {
+      width: 64,
+      paddingVertical: 10,
+      backgroundColor: OVERALL_ORANGE,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    overallLetterText: {
+      fontSize: 18,
+      fontFamily: "Helvetica-Bold",
+      color: "#ffffff",
+    },
+    overallLabelBox: {
+      flex: 1,
+      paddingVertical: 10,
+      paddingHorizontal: 12,
+      backgroundColor: "#ffffff",
+      justifyContent: "center",
+    },
+    overallLabelText: {
+      fontSize: 12,
+      fontFamily: "Helvetica-Bold",
+      color: OVERALL_ORANGE,
+    },
+    overallEmpty: {
+      paddingVertical: 12,
+      paddingHorizontal: 14,
+      backgroundColor: OVERALL_ORANGE_LIGHT,
+      borderRadius: 4,
+      fontSize: 9,
+      color: "#5a2900",
+    },
     sigRow: {
       flexDirection: "row",
       gap: 24,
@@ -190,6 +298,8 @@ export const generatePdfBlob = async (
     )
   }
 
+  const overall = calculateOverallRating(formData)
+
   const ReportCard = () => (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -206,6 +316,44 @@ export const generatePdfBlob = async (
             <Text style={styles.metaLabel}>Evaluation Date</Text>
             <Text style={styles.metaValue}>{formatDate(evaluationDate)}</Text>
           </View>
+        </View>
+
+        <View style={styles.assessmentBlock}>
+          <Text style={styles.assessmentTitle}>Performance Assessment</Text>
+          <Text style={styles.assessmentDescription}>{PERFORMANCE_DESCRIPTION}</Text>
+
+          <View style={styles.gainsScaleRow}>
+            {GAINS_OPTIONS.map((opt) => (
+              <View
+                key={opt.value}
+                style={[styles.gainsScaleItem, { backgroundColor: opt.color }]}
+              >
+                <Text style={[styles.gainsScaleLetter, { color: opt.color }]}>{opt.letter}</Text>
+                <View style={styles.gainsScaleText}>
+                  <Text style={styles.gainsScaleName}>{opt.label}</Text>
+                  <Text style={styles.gainsScalePercentile}>
+                    {PERCENTILE_BY_RATING[opt.value]}
+                  </Text>
+                </View>
+              </View>
+            ))}
+          </View>
+
+          <Text style={styles.overallLabel}>Overall Rating</Text>
+          {overall ? (
+            <View style={styles.overallBar}>
+              <View style={styles.overallLetterBox}>
+                <Text style={styles.overallLetterText}>{overall.letter}</Text>
+              </View>
+              <View style={styles.overallLabelBox}>
+                <Text style={styles.overallLabelText}>{overall.label}</Text>
+              </View>
+            </View>
+          ) : (
+            <Text style={styles.overallEmpty}>
+              No criterion ratings provided — overall rating unavailable.
+            </Text>
+          )}
         </View>
 
         {domainSection("aptitude", formData.aptitude)}

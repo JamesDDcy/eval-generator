@@ -55,7 +55,7 @@ export const AppSidebar = () => {
 
       <div className="p-4 border-t border-[#bec9c7]">
         <p className="text-[11px] text-[#6e7978] text-center">
-          MedGrocer Internal ACE System v2.4
+          MedGrocer Internal ACE System v1.0
         </p>
       </div>
     </aside>

@@ -46,11 +46,11 @@ export const ACE_DOMAINS: AceDomain[] = [
     subtitle: "Execution & Output Quality",
     description:
       "Measures real-world application, efficiency in task completion, and the overall impact of work on organizational goals.",
-    borderColor: "#6f3f00",
-    badgeBg: "#ffdcbe",
-    badgeText: "#2d1600",
-    iconColor: "#6f3f00",
-    focusColor: "#6f3f00",
+    borderColor: "#e8763c",
+    badgeBg: "#fdd9b8",
+    badgeText: "#5a2900",
+    iconColor: "#e8763c",
+    focusColor: "#e8763c",
     metrics: ["KPI Achievement Rate", "Operational Efficiency"],
   },
 ]

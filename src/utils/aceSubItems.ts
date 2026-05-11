@@ -113,10 +113,10 @@ export const ACE_DOMAIN_GUIDES: AceDomainGuide[] = [
   {
     key: "effectiveness",
     name: "Effectiveness",
-    headerBg: "#8b5e00",
+    headerBg: "#e8763c",
     headerText: "#ffffff",
     cardBg: "#fff4e6",
-    codeBg: "#8b5e00",
+    codeBg: "#e8763c",
     codeText: "#ffffff",
     subItems: [
       {
